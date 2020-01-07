@@ -7,7 +7,7 @@ import fetch from 'isomorphic-fetch'
 import { gql } from 'apollo-boost'
 
 const httpLink = createHttpLink({
-  uri: 'https://dev-andersen-andersen.myshopify.com/api/2019-07/graphql',
+  uri: 'https://dev-andersen-andersen.myshopify.com/api/2019-07/graphql.json',
   // headers: {
   //   'X-Shopify-Storefront-Access-Token': 'c32046ff1022ad412f712aaf3d3432f5',
   //   Accept: 'application/json',
@@ -19,8 +19,9 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
+      Accept: 'application/json',
       'X-Shopify-Storefront-Access-Token': 'c32046ff1022ad412f712aaf3d3432f5',
-      // Accept: 'application/json',
+      'Content-Type': 'application/graphql',
     },
   }
 })
@@ -43,33 +44,27 @@ export const client = new ApolloClient({
 // })
 
 console.log('IM THE CLIENT', client)
-
-client
-  .query({
-    query: gql`
-      {
-        shop {
-          name
-        }
-      }
-    `,
-  })
-  .then(res => console.log('res', res))
-const query = `query Articles {
-  articles(first: 10) {
-    edges {
-      node {
-        blog {
-          title
+const query = gql`
+  query Articles {
+    articles(first: 10) {
+      edges {
+        node {
+          blog {
+            title
+            handle
+          }
           handle
+          title
+          url
+          contentHtml
         }
-        handle
-        title
-        url
-        contentHtml
       }
     }
   }
-}
-
 `
+
+client
+  .query({
+    query: query,
+  })
+  .then(res => console.log('res', res))
