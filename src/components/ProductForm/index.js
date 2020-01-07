@@ -5,6 +5,64 @@ import PropTypes from 'prop-types'
 
 import StoreContext from '~/context/StoreContext'
 
+const ARTICLES_QUERY = `
+  query GetArticles($first: Int!, $after: String) {
+    shop {
+      articles(first: $first, after: $after) {
+        pageInfo {
+          hasNextPage
+        }
+        edges {
+          cursor
+          node {
+            author {
+              bio
+              email
+              firstName
+              lastName
+              name
+            }
+            blog {
+              id
+            }
+            comments(first: 250) {
+              edges {
+                node {
+                  author {
+                    email
+                    name
+                  }
+                  content
+                  contentHtml
+                  id
+                }
+              }
+            }
+            content
+            contentHtml
+            excerpt
+            excerptHtml
+            id
+            image {
+              altText
+              id
+              src
+            }
+            publishedAt
+            tags
+            title
+            url
+            seo {
+              title
+              description
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
 const ProductForm = ({ product }) => {
   const {
     options,
@@ -12,6 +70,7 @@ const ProductForm = ({ product }) => {
     variants: [initialVariant],
     priceRange: { minVariantPrice },
   } = product
+  console.log('VARIANTS', variants)
   const [variant, setVariant] = useState({ ...initialVariant })
   const [quantity, setQuantity] = useState(1)
   const {
@@ -31,6 +90,7 @@ const ProductForm = ({ product }) => {
           variant => variant.shopifyId === productVariant.shopifyId
         )
         setAvailable(result[0].availableForSale)
+        console.log('result', result)
       })
     },
     [client.product, productVariant.shopifyId, variants]
@@ -39,6 +99,13 @@ const ProductForm = ({ product }) => {
   useEffect(() => {
     checkAvailability(product.shopifyId)
   }, [productVariant, checkAvailability, product.shopifyId])
+
+  useEffect(() => {
+    console.log('im the client', client.graphQLClient)
+    client.graphQLClient.fetcher(ARTICLES_QUERY).then(res => {
+      console.log('res', res)
+    })
+  }, [])
 
   const handleQuantityChange = ({ target }) => {
     setQuantity(target.value)

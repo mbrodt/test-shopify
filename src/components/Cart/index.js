@@ -7,12 +7,14 @@ const Cart = () => {
   const {
     store: { checkout },
   } = useContext(StoreContext)
+  console.log('checkout:', checkout)
 
   const handleCheckout = () => {
     window.open(checkout.webUrl)
   }
 
   const line_items = checkout.lineItems.map(line_item => {
+    console.log('line_item:', line_item)
     return <LineItem key={line_item.id.toString()} line_item={line_item} />
   })
 
